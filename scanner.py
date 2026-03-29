@@ -129,5 +129,5 @@ except Exception as e:
 
 # --- AUTO REFRESH ---
 st.caption(f"Last update: {datetime.now().strftime('%H:%M:%S')}")
-time.sleep(60)
+time.sleep(180)
 st.rerun()
