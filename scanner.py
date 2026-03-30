@@ -150,7 +150,7 @@ try:
         buy_signals = df_final[(df_final["Signal"].str.contains("BUY|BOTTOMING"))]
         c3.metric("Signal Alert", len(buy_signals))
 
-        # --- TELEGRAM LOGIC ---
+        # --- TELEGRAM LOGIC (FULL DETAIL GABUNGAN) ---
         if 'last_sent_tickers' not in st.session_state:
             st.session_state.last_sent_tickers = set()
 
@@ -166,10 +166,14 @@ try:
                 msg += "----------------------------\n"
                 for t in new_to_notify:
                     row = buy_signals[buy_signals['Ticker'] == t].iloc[0]
-                    msg += f"• *{row['Ticker']}* | P: {row['Price']}\n"
-                    msg += f"  📊 Z-Score: {row['Z-Score']} | Flow: {row['Net Flow']}\n"
+                    # INI GABUNGAN SEMUA INFO BIAR LENGKAP BRO
+                    msg += f"• *{row['Ticker']}* | Price: {row['Price']}\n"
+                    msg += f"  📊 ROC: {row['ROC 5D (%)']}% | R-Vol: {row['R-Vol']}\n"
+                    msg += f"  📈 Z-Score: {row['Z-Score']} | Flow: {row['Net Flow']}\n"
                     msg += f"  🎯 TP: {row['TP (ATR)']} | 🛑 SL: {row['SL (ATR)']}\n"
-                    msg += f"  ⚠️ Status: {row['Status']}\n\n"
+                    msg += f"  ⚠️ Status: {row['Status']} | 💧 Liq: {row['Impact']}\n"
+                    msg += f"  ⭐ Score: {row['Score']} | 🏷️ {row['Signal']}\n\n"
+                
                 send_telegram(msg)
                 st.session_state.last_sent_tickers.update(new_to_notify)
             
