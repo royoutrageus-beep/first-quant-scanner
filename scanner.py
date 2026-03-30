@@ -4,11 +4,15 @@ import streamlit as st
 import time
 import requests
 import numpy as np
+import pytz # Tambahan buat benerin Jam
 from datetime import datetime
 
 # --- CONFIG TELEGRAM ---
 TOKEN = "8641113824:AAGWK4MYSgr9ilS2RoDS9fMFuRheJgJbQo8"
 CHAT_ID = "1186394676"
+
+# Buat zona waktu Jakarta
+jakarta_tz = pytz.timezone('Asia/Jakarta')
 
 def send_telegram(message):
     try:
@@ -64,12 +68,11 @@ try:
             df = all_data[stock].copy().dropna()
             if len(df) < 30: continue
             
-            # --- NET FLOW / VOLUME FORCE (Konfirmasi Akum/Sell) ---
-            # Mengukur Net Volume: Jika Close naik, volume dianggap '+', jika turun '-', lalu di-rolling
+            # --- NET FLOW / VOLUME FORCE ---
             df['NetVol'] = np.where(df['Close'] > df['Close'].shift(1), df['Volume'], -df['Volume'])
-            df['NetVol_5D'] = df['NetVol'].rolling(5).sum() # Net Flow 5 hari terakhir
+            df['NetVol_5D'] = df['NetVol'].rolling(5).sum()
             
-            # --- Z-SCORE (Bottom Radar) ---
+            # --- Z-SCORE ---
             df['Mean_20'] = df['Close'].rolling(20).mean()
             df['Std_20'] = df['Close'].rolling(20).std()
             df['Z_Score'] = (df['Close'] - df['Mean_20']) / df['Std_20']
@@ -81,7 +84,6 @@ try:
             df["Low20"] = df["Low"].rolling(20).min()
             df["ROC"] = df["Close"].pct_change(5)
             
-            # ATR Calc
             tr = pd.concat([df['High']-df['Low'], abs(df['High']-df['Close'].shift()), abs(df['Low']-df['Close'].shift())], axis=1).max(axis=1)
             df['ATR'] = tr.rolling(atr_period).mean()
             
@@ -90,13 +92,11 @@ try:
             
             if turnover < min_turnover: continue
             
-            # --- LOGIC SIGNAL SELL (Bandar Jualan) ---
-            # Kriteria Sell: Harga tembus Low 20 hari ATAU Harga turun tapi Net Flow negatif gede
+            # --- LOGIC SIGNAL SELL ---
             is_selling = "NORMAL"
             if latest["Close"] <= df["Low20"].iloc[-2] or (latest["Close"] < latest["Open"] and latest["NetVol_5D"] < 0):
                 is_selling = "DISTRIBUTION 📉"
 
-            # --- MODE SELECTION LOGIC ---
             score = 0
             entry = "WAIT"
             
@@ -104,25 +104,20 @@ try:
                 if latest["RelVolume"] > rvol_threshold: score += 1
                 if latest["Close"] > latest["Open"]: score += 1
                 if latest["Close"] >= latest["High20"]: score += 1
-                if latest["NetVol_5D"] > 0: score += 1 # Tambahan Konfirmasi Net Volume
+                if latest["NetVol_5D"] > 0: score += 1 
                 if score >= 3: entry = "BUY 🔥"
                 elif score == 2: entry = "WATCH 👀"
-            
-            else: # Bottom Radar Mode
-                # Syarat Bottom: Z-Score rendah (oversold) + Ada perlawanan (RelVol naik atau NetVol mulai +)
+            else: 
                 if latest["Z_Score"] < -2.0: score += 2
                 if latest["NetVol"] > 0: score += 1
                 if latest["RelVolume"] > 1.0: score += 1
                 if score >= 3: entry = "BOTTOMING 🛡️"
                 elif score == 2: entry = "OVERSOLD ❄️"
 
-            # TP/SL ATR
             tp_level = latest["Close"] + (2 * latest["ATR"])
             sl_level = latest["Close"] - (1.5 * latest["ATR"])
             
-            if turnover > 50_000_000_000: impact = "HIGH ✅"
-            elif turnover > 10_000_000_000: impact = "MEDIUM ⚠️"
-            else: impact = "LOW 🔴"
+            impact = "HIGH ✅" if turnover > 50_000_000_000 else "MEDIUM ⚠️" if turnover > 10_000_000_000 else "LOW 🔴"
 
             results.append({
                 "Ticker": stock, "Price": int(latest["Close"]),
@@ -131,8 +126,7 @@ try:
                 "ROC 5D (%)": round(latest["ROC"] * 100, 2),
                 "R-Vol": round(latest["RelVolume"], 2),
                 "Turnover (M)": round(turnover / 1_000_000_000, 2),
-                "Impact": impact,
-                "Status": is_selling, # Kolom baru buat liat jualan
+                "Impact": impact, "Status": is_selling,
                 "TP (ATR)": int(tp_level), "SL (ATR)": int(sl_level),
                 "Score": score, "Signal": entry
             })
@@ -145,12 +139,10 @@ try:
         c1, c2, c3 = st.columns(3)
         c1.metric("Mode Active", scanner_mode)
         c2.metric("Saham Lolos Filter", len(df_final))
-        
-        # Filter BUY/BOTTOMING buat Notif
         buy_signals = df_final[(df_final["Signal"].str.contains("BUY|BOTTOMING"))]
         c3.metric("Signal Alert", len(buy_signals))
 
-        # --- TELEGRAM LOGIC (FULL DETAIL GABUNGAN) ---
+        # --- TELEGRAM LOGIC ---
         if 'last_sent_tickers' not in st.session_state:
             st.session_state.last_sent_tickers = set()
 
@@ -162,11 +154,12 @@ try:
             new_to_notify = current_buy_tickers - st.session_state.last_sent_tickers
 
             if new_to_notify:
-                msg = f"🛰️ *[{scanner_mode}] Alert ({datetime.now().strftime('%H:%M')})*\n"
+                # FIX JAM DISINI BRO
+                now_jkt = datetime.now(jakarta_tz).strftime('%H:%M')
+                msg = f"🛰️ *[{scanner_mode}] Alert ({now_jkt} WIB)*\n"
                 msg += "----------------------------\n"
                 for t in new_to_notify:
                     row = buy_signals[buy_signals['Ticker'] == t].iloc[0]
-                    # INI GABUNGAN SEMUA INFO BIAR LENGKAP BRO
                     msg += f"• *{row['Ticker']}* | Price: {row['Price']}\n"
                     msg += f"  📊 ROC: {row['ROC 5D (%)']}% | R-Vol: {row['R-Vol']}\n"
                     msg += f"  📈 Z-Score: {row['Z-Score']} | Flow: {row['Net Flow']}\n"
@@ -178,8 +171,6 @@ try:
                 st.session_state.last_sent_tickers.update(new_to_notify)
             
             st.session_state.last_sent_tickers = st.session_state.last_sent_tickers.intersection(current_buy_tickers)
-        else:
-            st.session_state.last_sent_tickers = set()
 
         st.subheader("📊 Full Market Radar Results")
         st.dataframe(df_final, use_container_width=True)
@@ -190,6 +181,7 @@ except Exception as e:
     st.error(f"Error: {e}")
 
 # --- AUTO REFRESH ---
-st.caption(f"Last update: {datetime.now().strftime('%H:%M:%S')}")
+now_footer = datetime.now(jakarta_tz).strftime('%H:%M:%S')
+st.caption(f"Last update: {now_footer} WIB")
 time.sleep(180)
 st.rerun()
