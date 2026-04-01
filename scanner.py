@@ -24,9 +24,6 @@ def send_telegram(message):
 st.set_page_config(layout="wide", page_title="Quant Scanner Indo")
 st.title("🔥 Ultimate Quant Scanner - IHSG Edition")
 
-# Tab System
-tab1, tab2 = st.tabs(["🚀 Live Scanner", "📊 Backtest Engine"])
-
 # List stocks (Tetap original)
 stocks = ["GOTO.JK", "BUKA.JK", "EMTK.JK", "INET.JK", "MLPT.JK", "DCII.JK", "ATIC.JK", "GLVA.JK", "MTDL.JK", "WIFI.JK", "LUCK.JK", "AWAN.JK", "CHIP.JK", "ELIT.JK", "CYBR.JK", "GALB.JK", "IRSX.JK", "LUCY.JK", "METI.JK", "NINE.JK", "BBCA.JK", "BBRI.JK", "BMRI.JK", "BBNI.JK", "ARTO.JK", "BRIS.JK", "BBTN.JK", "BDMN.JK", "PNBN.JK", 
 "BJBR.JK", "BJTM.JK", "BNLI.JK", "BVIC.JK", "MEGA.JK", "BNGA.JK", "ADMF.JK", "CFIN.JK", "BBYB.JK", "BINA.JK", "DNAR.JK", "AGRO.JK", "BABP.JK", "BACA.JK", "BAEK.JK", "BCIC.JK", "BEKS.JK", "BGTG.JK", "MAYA.JK", "MCOR.JK", "NISP.JK", "NOBU.JK", "PNBS.JK", "SDRA.JK", "VICI.JK", "AMAR.JK", "MASB.JK", "ADRO.JK", "PTBA.JK", "ITMG.JK", 
@@ -46,132 +43,166 @@ stocks = ["GOTO.JK", "BUKA.JK", "EMTK.JK", "INET.JK", "MLPT.JK", "DCII.JK", "ATI
 "IFII.JK", "SOCI.JK", "PDPP.JK", "RATU.JK", "JGLE.JK", "PSKT.JK", "BBHI.JK", "KUAS.JK", "RMKO.JK", "CLAY.JK", "ENAK.JK", "VKTR.JK", "PART.JK", "UNSP.JK", "ZATA.JK", "BSKL.JK", "AMMN.JK", "TKIM.JK", "KRAS.JK", "NICL.JK", "DKFT.JK", "FORE.JK", "FPNI.JK", "SOLA.JK", "SMBR.JK", "SMGA.JK", "WTON.JK", "DAAZ.JK", "CHEM.JK", "BSBK.JK", 
 "DKHH.JK", "OPMS.JK", "SSMS.JK", "MINE.JK", "NICE.JK", "PPRI.JK", "NPGF.JK", "SRSN.JK", "CITA.JK", "MOLI.JK", "UDNG.JK", "SMLE.JK", "DGWG.JK", "KAQI.JK", "CLPI.JK", "UNTD.JK",
 "MDKI.JK", "BLES.JK", "IFSH.JK", "BATR.JK", "FWCT.JK", "GGRP.JK", "TBMS.JK", "INCF.JK", "SAMF.JK", "SWID.JK", "LTLS.JK", "OBMD.JK", "UNIC.JK", "SMKL.JK", "CMNT.JK", "KKES.JK", "YELO.JK", "AADI.JK", "CBRE.JK", "LEAD.JK", "BSSR.JK", "ATLA.JK", "FIRE.JK", "DSSA.JK", "BBRM.JK", "PSAT.JK", "MAHA.JK", "TPMA.JK", "BOAT.JK", "WINS.JK", "SICO.JK", "MBAP.JK", "BSML.JK", "MEJA.JK", "ITMA.JK", "DWGL.JK", "GTBO.JK", "ARII.JK", "MKAP.JK", "RIGS.JK", "CANI.JK", "PTIS.JK", "SUNI.JK", "GZCO.JK", "BWPT.JK",
-"ASHA.JK", "CPRO.JK", "WMUU.JK", "NASI.JK", "SIMP.JK", "CLEO.JK", "HOKI.JK", "SMAR.JK", "AYAM.JK", "DSFI.JK", "PTPS.JK", "NSSS.JK", "DEWI.JK", "ISEA.JK", "CMRY.JK", "ANJT.JK", "WAPO.JK", "JAWA.JK", "CSRA.JK", "DPUM.JK", "NEST.JK", "GULA.JK", "PSDN.JK", "IBOS.JK", "STRK.JK", "TAYS.JK", "KEJU.JK", "PSGO.JK", "BISI.JK", "ENZO.JK", "GRPM.JK", "NAYZ.JK", "YUPI.JK", "TLDN.JK", "MKTR.JK", "CRAB.JK", "FISH.JK", "BOBA.JK", "SUPA.JK", "BBYB.JK", "BBKP.JK", "INPC.JK", "TRUE.JK", "MHKI.JK", "LAJU.JK",]
+"ASHA.JK", "CPRO.JK", "WMUU.JK", "NASI.JK", "SIMP.JK", "CLEO.JK", "HOKI.JK", "SMAR.JK", "AYAM.JK", "DSFI.JK", "PTPS.JK", "NSSS.JK", "DEWI.JK", "ISEA.JK", "CMRY.JK", "ANJT.JK", "WAPO.JK", "JAWA.JK", "CSRA.JK", "DPUM.JK", "NEST.JK", "GULA.JK", "PSDN.JK", "IBOS.JK", "STRK.JK", "TAYS.JK", "KEJU.JK", "PSGO.JK", "BISI.JK", "ENZO.JK", "GRPM.JK", "NAYZ.JK", "YUPI.JK", "TLDN.JK", "MKTR.JK", "CRAB.JK", "FISH.JK", "BOBA.JK", "SUPA.JK", "BBYB.JK", "BBKP.JK", "INPC.JK", "TRUE.JK", "MHKI.JK", "LAJU.JK",] 
 
-# --- GLOBAL INDICATORS FUNCTION ---
-def apply_logic(df, atr_period=14):
+# --- SIDEBAR ---
+with st.sidebar:
+    st.header("⚙️ Scanner Settings")
+    scanner_mode = st.radio("Pilih Mode Scanner:", ["Standard Accum", "Bottom Radar (Z-Score)"])
+    st.divider()
+    min_turnover = st.number_input("Min Transaksi (Miliar Rp)", value=1.0, step=0.5) * 1_000_000_000
+    rvol_threshold = st.slider("Min Relative Volume", 1.0, 5.0, 1.2)
+    atr_period_val = st.number_input("ATR Period (for TP/SL)", value=14)
+    st.info("Scanner refresh otomatis tiap 180 detik.")
+
+# --- CORE LOGIC FUNCTIONS ---
+def apply_quant_logic(df, atr_p=14):
+    # CMF & CLV (Money Flow)
     df['CLV'] = ((df['Close'] - df['Low']) - (df['High'] - df['Close'])) / (df['High'] - df['Low'])
     df['CLV'] = df['CLV'].fillna(0)
     mfv = df['CLV'] * df['Volume']
     df['CMF'] = mfv.rolling(20).sum() / df['Volume'].rolling(20).sum()
-    df['NetVol'] = np.where(df['Close'] > df['Close'].shift(1), df['Volume'], -df['Volume'])
-    df['NetVol_5D'] = df['NetVol'].rolling(5).sum()
+    
+    # Z-Score & Volatility
     df['Mean_20'] = df['Close'].rolling(20).mean()
     df['Std_20'] = df['Close'].rolling(20).std()
     df['Z_Score'] = (df['Close'] - df['Mean_20']) / df['Std_20']
+    
+    # Net Flow & Basic Indicators
+    df['NetVol'] = np.where(df['Close'] > df['Close'].shift(1), df['Volume'], -df['Volume'])
+    df['NetVol_5D'] = df['NetVol'].rolling(5).sum()
     df["AvgVolume"] = df["Volume"].rolling(20).mean()
     df["RelVolume"] = df["Volume"] / df["AvgVolume"]
     df["High20"] = df["High"].rolling(20).max()
     df["Low20"] = df["Low"].rolling(20).min()
     df["ROC"] = df["Close"].pct_change(5)
+    
+    # ATR for TP/SL
     tr = pd.concat([df['High']-df['Low'], abs(df['High']-df['Close'].shift()), abs(df['Low']-df['Close'].shift())], axis=1).max(axis=1)
-    df['ATR'] = tr.rolling(atr_period).mean()
+    df['ATR'] = tr.rolling(atr_p).mean()
     return df
 
 @st.cache_data(ttl=60)
 def fetch_data(stock_list):
     return yf.download(stock_list, period="1y", group_by='ticker', progress=False)
 
-# --- TAB 1: LIVE SCANNER ---
-with tab1:
-    with st.sidebar:
-        st.header("⚙️ Scanner Settings")
-        scanner_mode = st.radio("Pilih Mode Scanner:", ["Standard Accum", "Bottom Radar (Z-Score)"])
-        min_turnover = st.number_input("Min Transaksi (Miliar Rp)", value=1.0, step=0.5) * 1_000_000_000
-        rvol_threshold = st.slider("Min Relative Volume", 1.0, 5.0, 1.2)
-        st.info("Scanner refresh otomatis tiap 180 detik.")
+# --- MAIN EXECUTION ---
+try:
+    all_data = fetch_data(stocks)
+    results = []
 
-    try:
-        all_data = fetch_data(stocks)
-        results = []
-        for stock in stocks:
-            try:
-                df = all_data[stock].copy().dropna()
-                if len(df) < 30: continue
-                df = apply_logic(df)
-                latest = df.iloc[-1]
-                turnover = latest["Close"] * latest["Volume"]
-                if turnover < min_turnover: continue
+    for stock in stocks:
+        try:
+            df = all_data[stock].copy().dropna()
+            if len(df) < 30: continue
+            
+            df = apply_quant_logic(df, atr_period_val)
+            latest = df.iloc[-1]
+            turnover = latest["Close"] * latest["Volume"]
+            
+            if turnover < min_turnover: continue
+            
+            # Logic Distribution Check
+            is_selling = "NORMAL"
+            if latest["Close"] <= df["Low20"].iloc[-2] or (latest["Close"] < latest["Open"] and latest["NetVol_5D"] < 0):
+                is_selling = "DISTRIBUTION 📉"
+
+            # Scoring Logic (Standard Accum)
+            score = 0
+            entry = "WAIT"
+            if scanner_mode == "Standard Accum":
+                if latest["RelVolume"] > rvol_threshold: score += 1
+                if latest["Close"] > latest["Open"] and latest["CLV"] > 0.4: score += 1
+                if latest["Close"] >= latest["High20"]: score += 1
+                if latest["CMF"] > 0.05: score += 1
+                if score >= 3: entry = "BUY 🔥"
+                elif score == 2: entry = "WATCH 👀"
+            else:
+                if latest["Z_Score"] < -2.0: score += 2
+                if latest["CMF"] > 0: score += 1
+                if latest["RelVolume"] > 1.0: score += 1
+                if score >= 3: entry = "BOTTOMING 🛡️"
+
+            tp_level = latest["Close"] + (2 * latest["ATR"])
+            sl_level = latest["Close"] - (1.5 * latest["ATR"])
+            
+            impact = "HIGH ✅" if turnover > 50e9 else "MEDIUM ⚠️" if turnover > 10e9 else "LOW 🔴"
+
+            results.append({
+                "Ticker": stock, "Price": int(latest["Close"]),
+                "Z-Score": round(latest["Z_Score"], 4),
+                "Net Flow": "Accum" if latest["CMF"] > 0 else "Sell",
+                "ROC 5D (%)": round(latest["ROC"] * 100, 2),
+                "R-Vol": round(latest["RelVolume"], 2),
+                "Turnover (M)": round(turnover / 1_000_000, 2), # Tampilan dalam Juta
+                "Impact": impact, "Status": is_selling,
+                "TP (ATR)": int(tp_level), "SL (ATR)": int(sl_level),
+                "Score": score, "Signal": entry
+            })
+        except: continue
+
+    df_final = pd.DataFrame(results)
+
+    if not df_final.empty:
+        df_final = df_final.sort_values(by="Score", ascending=False)
+        
+        # --- SUMMARY HEADER ---
+        c1, c2, c3 = st.columns(3)
+        c1.metric("Mode Active", scanner_mode)
+        c2.metric("Saham Lolos Filter", len(df_final))
+        buy_signals = df_final[df_final["Signal"].str.contains("BUY|BOTTOMING")]
+        c3.metric("Signal Alert", len(buy_signals))
+
+        # --- TELEGRAM ALERT ---
+        if 'last_sent' not in st.session_state: st.session_state.last_sent = set()
+        
+        if not buy_signals.empty:
+            st.error(f"🚨 ALERT {scanner_mode.upper()} DETECTED!")
+            st.table(buy_signals) # Summary box sesuai screenshot
+            
+            new_tickers = set(buy_signals['Ticker'].tolist()) - st.session_state.last_sent
+            if new_tickers:
+                now_jkt = datetime.now(jakarta_tz).strftime('%H:%M')
+                msg = f"🛰️ *[{scanner_mode}] Alert ({now_jkt} WIB)*\n"
+                for t in new_tickers:
+                    row = buy_signals[buy_signals['Ticker'] == t].iloc[0]
+                    msg += f"• *{row['Ticker']}* | P: {row['Price']} | Score: {row['Score']}\n"
+                send_telegram(msg)
+                st.session_state.last_sent.update(new_tickers)
+        
+        # --- FULL MARKET RESULTS ---
+        st.subheader("📊 Full Market Radar Results")
+        st.dataframe(df_final, use_container_width=True)
+
+        # --- BACKTEST ENGINE (DI BAWAH) ---
+        st.divider()
+        with st.expander("📊 Logic Backtest Engine (6 Month Performance Check)"):
+            st.write("Cek performa Signal dalam 5 hari ke depan.")
+            if st.button("Run Backtest Now 🚀"):
+                bt_results = []
+                for s in stocks[:50]: # Sample 50 buat speed, ganti 'stocks' buat full
+                    try:
+                        d_bt = all_data[s].dropna()
+                        d_bt = apply_quant_logic(d_bt)
+                        for i in range(40, len(d_bt)-5):
+                            r = d_bt.iloc[i]
+                            if r["RelVolume"] > 1.2 and r["CMF"] > 0.05 and r["Close"] >= r["High20"]:
+                                p_entry = r["Close"]
+                                p_exit = d_bt.iloc[i+5]["Close"]
+                                bt_results.append(((p_exit - p_entry)/p_entry)*100)
+                    except: continue
                 
-                is_selling = "NORMAL"
-                if latest["Close"] <= df["Low20"].iloc[-2] or (latest["Close"] < latest["Open"] and latest["NetVol_5D"] < 0):
-                    is_selling = "DISTRIBUTION 📉"
+                if bt_results:
+                    arr = np.array(bt_results)
+                    win_rate = (len(arr[arr > 0]) / len(arr)) * 100
+                    st.success(f"Backtest Result: Win Rate {round(win_rate, 2)}% | Avg Profit {round(np.mean(arr), 2)}%")
+    else:
+        st.warning("Belum ada saham masuk kriteria.")
 
-                score = 0
-                entry = "WAIT"
-                if scanner_mode == "Standard Accum":
-                    if latest["RelVolume"] > rvol_threshold: score += 1
-                    if latest["Close"] > latest["Open"] and latest["CLV"] > 0.4: score += 1
-                    if latest["Close"] >= latest["High20"]: score += 1
-                    if latest["CMF"] > 0.05: score += 1
-                    if score >= 4: entry = "STRONG BUY 🔥🔥🔥"
-                    elif score == 3: entry = "SPEC BUY ⚡"
-                else:
-                    if latest["Z_Score"] < -2.0: score += 2
-                    if latest["CMF"] > 0: score += 1
-                    if latest["RelVolume"] > 1.0: score += 1
-                    if score >= 3: entry = "BOTTOMING 🛡️"
+except Exception as e:
+    st.error(f"Error Global: {e}")
 
-                results.append({
-                    "Ticker": stock, "Price": int(latest["Close"]), "CMF": round(latest["CMF"], 3),
-                    "ROC 5D (%)": round(latest["ROC"] * 100, 2), "R-Vol": round(latest["RelVolume"], 2),
-                    "Impact": "HIGH ✅" if turnover > 50_000_000_000 else "MEDIUM ⚠️" if turnover > 10_000_000_000 else "LOW 🔴",
-                    "Score": score, "Signal": entry
-                })
-            except: continue
-
-        df_final = pd.DataFrame(results)
-        if not df_final.empty:
-            df_final = df_final.sort_values(by="Score", ascending=False)
-            st.dataframe(df_final, use_container_width=True)
-            # (Telegram logic stays the same as previous code)
-    except Exception as e: st.error(f"Error: {e}")
-
-# --- TAB 2: BACKTEST ENGINE ---
-with tab2:
-    st.header("📊 Logic Backtest Engine")
-    st.write("Mengecek performa Signal dalam 5 hari ke depan selama 6 bulan terakhir.")
-    
-    if st.button("Run Backtest Now 🚀"):
-        bt_results = []
-        with st.status("Analyzing historical data...", expanded=True) as status:
-            for stock in stocks:
-                try:
-                    df = fetch_data([stock])[stock].dropna()
-                    df = apply_logic(df)
-                    # Loop historical data (start from day 40 to avoid NaN)
-                    for i in range(40, len(df) - 5):
-                        row = df.iloc[i]
-                        # Logic Backtest (Standard Accum)
-                        bt_score = 0
-                        if row["RelVolume"] > 1.2: bt_score += 1
-                        if row["Close"] > row["Open"] and row["CLV"] > 0.4: bt_score += 1
-                        if row["Close"] >= row["High20"]: bt_score += 1
-                        if row["CMF"] > 0.05: bt_score += 1
-                        
-                        if bt_score >= 3: # Entry Signal Found
-                            price_entry = row["Close"]
-                            price_exit = df.iloc[i+5]["Close"] # Cek harga 5 hari kemudian
-                            profit_pct = ((price_exit - price_entry) / price_entry) * 100
-                            bt_results.append(profit_pct)
-                except: continue
-            status.update(label="Backtest Complete!", state="complete")
-
-        if bt_results:
-            results_array = np.array(bt_results)
-            win_rate = (len(results_array[results_array > 0]) / len(results_array)) * 100
-            avg_profit = np.mean(results_array)
-            
-            c1, c2, c3 = st.columns(3)
-            c1.metric("Total Signals Tested", len(bt_results))
-            c2.metric("Win Rate (%)", f"{round(win_rate, 2)}%")
-            c3.metric("Avg Profit/Trade (5D)", f"{round(avg_profit, 2)}%")
-            
-            st.info(f"Hasil menunjukkan bahwa dengan logic presisi baru (CMF + CLV), probabilitas profit lo dalam 5 hari adalah {round(win_rate, 2)}%.")
-        else:
-            st.warning("Data tidak cukup untuk melakukan backtest.")
-
-# --- AUTO REFRESH ---
+# --- REFRESH ---
 st.caption(f"Last update: {datetime.now(jakarta_tz).strftime('%H:%M:%S')} WIB")
 time.sleep(180)
 st.rerun()
