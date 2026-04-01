@@ -153,23 +153,41 @@ try:
         buy_signals = df_final[df_final["Signal"].str.contains("BUY|BOTTOMING")]
         c3.metric("Signal Alert", len(buy_signals))
 
-        # --- TELEGRAM ALERT ---
-        if 'last_sent' not in st.session_state: st.session_state.last_sent = set()
-        
+        # --- TELEGRAM LOGIC ---
+        if 'last_sent_tickers' not in st.session_state:
+            st.session_state.last_sent_tickers = set()
+
         if not buy_signals.empty:
             st.error(f"🚨 ALERT {scanner_mode.upper()} DETECTED!")
-            st.table(buy_signals) # Summary box sesuai screenshot
+            st.table(buy_signals)
             
-            new_tickers = set(buy_signals['Ticker'].tolist()) - st.session_state.last_sent
-            if new_tickers:
+            current_buy_tickers = set(buy_signals['Ticker'].tolist())
+            new_to_notify = current_buy_tickers - st.session_state.last_sent_tickers
+
+            if new_to_notify:
+                # FIX JAM DISINI BRO
                 now_jkt = datetime.now(jakarta_tz).strftime('%H:%M')
                 msg = f"🛰️ *[{scanner_mode}] Alert ({now_jkt} WIB)*\n"
-                for t in new_tickers:
+                msg += "----------------------------\n"
+                for t in new_to_notify:
                     row = buy_signals[buy_signals['Ticker'] == t].iloc[0]
-                    msg += f"• *{row['Ticker']}* | P: {row['Price']} | Score: {row['Score']}\n"
+                    msg += f"• *{row['Ticker']}* | Price: {row['Price']}\n"
+                    msg += f"  📊 ROC: {row['ROC 5D (%)']}% | R-Vol: {row['R-Vol']}\n"
+                    msg += f"  📈 Z-Score: {row['Z-Score']} | Flow: {row['Net Flow']}\n"
+                    msg += f"  🎯 TP: {row['TP (ATR)']} | 🛑 SL: {row['SL (ATR)']}\n"
+                    msg += f"  ⚠️ Status: {row['Status']} | 💧 Liq: {row['Impact']}\n"
+                    msg += f"  ⭐ Score: {row['Score']} | 🏷️ {row['Signal']}\n\n"
+                
                 send_telegram(msg)
-                st.session_state.last_sent.update(new_tickers)
-        
+                st.session_state.last_sent_tickers.update(new_to_notify)
+            
+            st.session_state.last_sent_tickers = st.session_state.last_sent_tickers.intersection(current_buy_tickers)
+
+        st.subheader("📊 Full Market Radar Results")
+        st.dataframe(df_final, use_container_width=True)
+    else:
+        st.warning("Belum ada saham yang masuk kriteria.")
+       
         # --- FULL MARKET RESULTS ---
         st.subheader("📊 Full Market Radar Results")
         st.dataframe(df_final, use_container_width=True)
