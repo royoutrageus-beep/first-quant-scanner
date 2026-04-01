@@ -57,18 +57,15 @@ with st.sidebar:
 
 # --- CORE LOGIC FUNCTIONS ---
 def apply_quant_logic(df, atr_p=14):
-    # CMF & CLV (Money Flow)
     df['CLV'] = ((df['Close'] - df['Low']) - (df['High'] - df['Close'])) / (df['High'] - df['Low'])
     df['CLV'] = df['CLV'].fillna(0)
     mfv = df['CLV'] * df['Volume']
     df['CMF'] = mfv.rolling(20).sum() / df['Volume'].rolling(20).sum()
     
-    # Z-Score & Volatility
     df['Mean_20'] = df['Close'].rolling(20).mean()
     df['Std_20'] = df['Close'].rolling(20).std()
     df['Z_Score'] = (df['Close'] - df['Mean_20']) / df['Std_20']
     
-    # Net Flow & Basic Indicators
     df['NetVol'] = np.where(df['Close'] > df['Close'].shift(1), df['Volume'], -df['Volume'])
     df['NetVol_5D'] = df['NetVol'].rolling(5).sum()
     df["AvgVolume"] = df["Volume"].rolling(20).mean()
@@ -77,7 +74,6 @@ def apply_quant_logic(df, atr_p=14):
     df["Low20"] = df["Low"].rolling(20).min()
     df["ROC"] = df["Close"].pct_change(5)
     
-    # ATR for TP/SL
     tr = pd.concat([df['High']-df['Low'], abs(df['High']-df['Close'].shift()), abs(df['Low']-df['Close'].shift())], axis=1).max(axis=1)
     df['ATR'] = tr.rolling(atr_p).mean()
     return df
@@ -107,7 +103,7 @@ try:
             if latest["Close"] <= df["Low20"].iloc[-2] or (latest["Close"] < latest["Open"] and latest["NetVol_5D"] < 0):
                 is_selling = "DISTRIBUTION 📉"
 
-            # Scoring Logic (Standard Accum)
+            # Scoring Logic
             score = 0
             entry = "WAIT"
             if scanner_mode == "Standard Accum":
@@ -125,7 +121,6 @@ try:
 
             tp_level = latest["Close"] + (2 * latest["ATR"])
             sl_level = latest["Close"] - (1.5 * latest["ATR"])
-            
             impact = "HIGH ✅" if turnover > 50e9 else "MEDIUM ⚠️" if turnover > 10e9 else "LOW 🔴"
 
             results.append({
@@ -134,7 +129,7 @@ try:
                 "Net Flow": "Accum" if latest["CMF"] > 0 else "Sell",
                 "ROC 5D (%)": round(latest["ROC"] * 100, 2),
                 "R-Vol": round(latest["RelVolume"], 2),
-                "Turnover (M)": round(turnover / 1_000_000, 2), # Tampilan dalam Juta
+                "Turnover (M)": round(turnover / 1_000_000, 2),
                 "Impact": impact, "Status": is_selling,
                 "TP (ATR)": int(tp_level), "SL (ATR)": int(sl_level),
                 "Score": score, "Signal": entry
@@ -165,7 +160,6 @@ try:
             new_to_notify = current_buy_tickers - st.session_state.last_sent_tickers
 
             if new_to_notify:
-                # FIX JAM DISINI BRO
                 now_jkt = datetime.now(jakarta_tz).strftime('%H:%M')
                 msg = f"🛰️ *[{scanner_mode}] Alert ({now_jkt} WIB)*\n"
                 msg += "----------------------------\n"
@@ -175,30 +169,24 @@ try:
                     msg += f"  📊 ROC: {row['ROC 5D (%)']}% | R-Vol: {row['R-Vol']}\n"
                     msg += f"  📈 Z-Score: {row['Z-Score']} | Flow: {row['Net Flow']}\n"
                     msg += f"  🎯 TP: {row['TP (ATR)']} | 🛑 SL: {row['SL (ATR)']}\n"
-                    msg += f"  ⚠️ Status: {row['Status']} | 💧 Liq: {row['Impact']}\n"
-                    msg += f"  ⭐ Score: {row['Score']} | 🏷️ {row['Signal']}\n\n"
+                    msg += f"  🏷️ {row['Signal']}\n\n"
                 
                 send_telegram(msg)
                 st.session_state.last_sent_tickers.update(new_to_notify)
             
             st.session_state.last_sent_tickers = st.session_state.last_sent_tickers.intersection(current_buy_tickers)
 
-        st.subheader("📊 Full Market Radar Results")
-        st.dataframe(df_final, use_container_width=True)
-    else:
-        st.warning("Belum ada saham yang masuk kriteria.")
-       
         # --- FULL MARKET RESULTS ---
         st.subheader("📊 Full Market Radar Results")
         st.dataframe(df_final, use_container_width=True)
 
-        # --- BACKTEST ENGINE (DI BAWAH) ---
+        # --- BACKTEST ENGINE ---
         st.divider()
         with st.expander("📊 Logic Backtest Engine (6 Month Performance Check)"):
             st.write("Cek performa Signal dalam 5 hari ke depan.")
             if st.button("Run Backtest Now 🚀"):
                 bt_results = []
-                for s in stocks[:50]: # Sample 50 buat speed, ganti 'stocks' buat full
+                for s in stocks[:100]:
                     try:
                         d_bt = all_data[s].dropna()
                         d_bt = apply_quant_logic(d_bt)
@@ -215,7 +203,7 @@ try:
                     win_rate = (len(arr[arr > 0]) / len(arr)) * 100
                     st.success(f"Backtest Result: Win Rate {round(win_rate, 2)}% | Avg Profit {round(np.mean(arr), 2)}%")
     else:
-        st.warning("Belum ada saham masuk kriteria.")
+        st.warning("Belum ada saham yang masuk kriteria.")
 
 except Exception as e:
     st.error(f"Error Global: {e}")
